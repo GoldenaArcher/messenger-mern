@@ -11,5 +11,6 @@
     "server": "cd backend && yarn start",
     "client": "cd frontend && yarn start",
     "dev": "concurrently \"yarn server\" \"yarn client\""
-  }
+  },
+  "proxy": "http://localhost:5000"
 }
