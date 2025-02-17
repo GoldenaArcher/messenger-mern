@@ -9,7 +9,10 @@ const axiosBaseQuery =
         method,
         data,
         params,
-        headers: { "Content-Type": "application/json" },
+        headers:
+          data instanceof FormData
+            ? { "Content-Type": "multipart/form-data" }
+            : { "Content-Type": "application/json" },
       });
       return { data: result.data };
     } catch (axiosError) {

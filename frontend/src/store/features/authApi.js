@@ -9,7 +9,7 @@ export const userApi = createApi({
       query: (userData) => ({
         url: "/api/messenger/user-register",
         method: "POST",
-        body: userData,
+        data: userData,
       }),
     }),
   }),

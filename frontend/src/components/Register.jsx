@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { useRegisterUserMutation } from "../store/features/authApi";
 
 const Register = () => {
-  const [registerUser, { isLoading, isSuccess, isError, error }] =
-    useRegisterUserMutation();
+  const [
+    registerUser,
+    // { isLoading, isSuccess, isError, error }
+  ] = useRegisterUserMutation();
 
   const [state, setState] = useState({
     username: "",
@@ -47,12 +49,11 @@ const Register = () => {
     });
 
     try {
-      const res = await registerUser(formData).unwrap();
+      await registerUser(formData).unwrap();
       alert("Registration successful!");
     } catch (err) {
       console.error("Registration failed:", err);
     }
-
   };
 
   return (
