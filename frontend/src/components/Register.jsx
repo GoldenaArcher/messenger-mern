@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+
 import { useRegisterUserMutation } from "../store/features/authApi";
+import { useSelector } from "react-redux";
 
 const Register = () => {
-  const [
-    registerUser,
-    // { isLoading, isSuccess, isError, error }
-  ] = useRegisterUserMutation();
+  const [registerUser, { isLoading, isSuccess, isError, error }] =
+    useRegisterUserMutation();
+
+  const {} = useSelector((state) => state.auth);
+
+  console.log(isLoading, isSuccess, isError, error);
 
   const [state, setState] = useState({
     username: "",
@@ -50,7 +54,6 @@ const Register = () => {
 
     try {
       await registerUser(formData).unwrap();
-      alert("Registration successful!");
     } catch (err) {
       console.error("Registration failed:", err);
     }

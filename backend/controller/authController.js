@@ -15,37 +15,37 @@ module.exports.userRegister = (req, res) => {
       extractFields(fields);
     const { image } = extractFields(files);
 
-    const error = [];
+    const errors = [];
 
     if (!username) {
-      error.push("Please provide your username.");
+      errors.push("Please provide your username.");
     }
     if (!email) {
-      error.push("Please provide your email.");
+      errors.push("Please provide your email.");
     }
     if (email && !validator.isEmail(email)) {
-      error.push("Please provide valid email.");
+      errors.push("Please provide valid email.");
     }
     if (!password) {
-      error.push("Please provide your password.");
+      errors.push("Please provide your password.");
     }
     if (password && password.length < 6) {
-      error.push("Password must be at least 6 characters.");
+      errors.push("Password must be at least 6 characters.");
     }
     if (!confirmPassword) {
-      error.push("Please provide your confirm password.");
+      errors.push("Please provide your confirm password.");
     }
     if (password && confirmPassword && password !== confirmPassword) {
-      error.push("Your password and confirm password does not match.");
+      errors.push("Your password and confirm password does not match.");
     }
     if (!image) {
-      error.push("Please provide user profile image.");
+      errors.push("Please provide user profile image.");
     }
-    if (error.length > 0) {
+    if (errors.length > 0) {
       res.status(400).json({
-        error: {
-          errorMessage: error,
-        },
+        success: false,
+        message: "User registered failed due to bad requests.",
+        errors,
       });
     } else {
       var token = randomBytes(16).toString("hex");
@@ -97,19 +97,23 @@ module.exports.userRegister = (req, res) => {
           //   ),
           // };
 
-          res.status(201)
-          // .cookie("authToken", token, options)
-          .json({
-            successMessage: "User registered successfully!",
-            token,
-          });
+          res
+            .status(201)
+            // .cookie("authToken", token, options)
+            .json({
+              success: true,
+              message: "User registered successfully.",
+              data: {
+                token,
+              },
+            });
         }
       } catch (error) {
         console.error(error);
         res.status(500).json({
-          error: {
-            errorMessage: ["Internal Server Error"],
-          },
+          success: false,
+          message: "Internal errors.",
+          errors,
         });
       }
     }
