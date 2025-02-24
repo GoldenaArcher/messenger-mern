@@ -64,9 +64,9 @@ module.exports.userRegister = (req, res) => {
         const existedUser = await registerModel.findOne();
         if (existedUser) {
           res.status(409).json({
-            error: {
-              errorMessage: ["Your email already existed."],
-            },
+            success: false,
+            message: "User already existed.",
+            errors: ["User already existed."],
           });
         } else {
           fs.renameSync(image.filepath, newPath);

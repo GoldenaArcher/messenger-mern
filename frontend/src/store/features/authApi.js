@@ -15,7 +15,9 @@ export const userApi = createApi({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setAuthToken(data.token));
+          console.log(data);
+          
+          dispatch(setAuthToken(data.data.token));
         } catch (error) {
           console.error("Error storing JWT:", error);
         }

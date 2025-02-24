@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import { useRegisterUserMutation } from "../store/features/authApi";
 import { useSelector } from "react-redux";
 
 const Register = () => {
-  const [registerUser, { isLoading, isSuccess, isError, error }] =
+  const [registerUser, { isLoading, isSuccess, isError, error, data }] =
     useRegisterUserMutation();
 
   const {} = useSelector((state) => state.auth);
-
-  console.log(isLoading, isSuccess, isError, error);
 
   const [state, setState] = useState({
     username: "",
@@ -19,6 +18,17 @@ const Register = () => {
     confirmPassword: "",
     image: "",
   });
+
+  useEffect(() => {
+    if (!isLoading && isSuccess) {
+      toast.success(data.message);
+      return;
+    }
+
+    if (!isLoading && isError) {
+      error.data.errors.forEach((err) => toast.error(err));
+    }
+  }, [isLoading, isSuccess, isError]);
 
   const [loadImage, setLoadImage] = useState("");
 
