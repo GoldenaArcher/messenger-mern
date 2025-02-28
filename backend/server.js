@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
+const path = require("path");
 
 const databaseConnect = require("./config/database");
 const authRouter = require("./routes/authRoute");
@@ -11,8 +12,11 @@ dotenv.config({
 });
 
 const app = express();
+
 app.use(cors());
 app.use(bodyParser.json());
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/messenger", authRouter);
 

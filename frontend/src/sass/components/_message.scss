@@ -1,0 +1,90 @@
+.message-show {
+  height: 100%;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .message-container {
+    display: flex;
+    align-items: flex-start; /* Aligns messages with profile image */
+    gap: 10px;
+    max-width: 70%;
+  }
+
+  /* Friend Messages (Left-aligned) */
+  .fd-message {
+    display: flex;
+    align-items: flex-start;
+    align-self: flex-start;
+    gap: 5px;
+  }
+
+  /* Profile Image */
+  .profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  /* Message bubble with timestamp */
+  .message-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .fd-text {
+    background-color: #e0e0e0;
+    color: black;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 250px;
+    word-wrap: break-word;
+  }
+
+  .my-text {
+    background-color: #017aff;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 250px;
+    word-wrap: break-word;
+    text-align: right;
+  }
+
+  /* Timestamp: Left-aligned for friend messages, right-aligned for my messages */
+  .fd-message .time {
+    font-size: 12px;
+    color: #727272;
+    margin-top: 3px;
+    text-align: left;
+  }
+
+  .my-message .time {
+    font-size: 12px;
+    color: #727272;
+    margin-top: 3px;
+    text-align: right;
+    align-self: flex-end; /* Ensures it's right-aligned */
+  }
+
+  /* My Messages (Right-aligned) */
+  .my-message {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    align-self: flex-end;
+  }
+}

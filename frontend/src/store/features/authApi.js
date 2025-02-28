@@ -17,11 +17,26 @@ export const userApi = createApi({
           const { data } = await queryFulfilled;
           dispatch(setAuthToken(data.data.token));
         } catch (error) {
-          console.error("Error storing JWT:", error);
+          console.error("Error authenticating user:", error);
+        }
+      },
+    }),
+    loginUser: builder.mutation({
+      query: (userData) => ({
+        url: "/api/messenger/user-login",
+        method: "POST",
+        data: userData,
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setAuthToken(data.data.token));
+        } catch (error) {
+          console.error("Error authenticating user:", error);
         }
       },
     }),
   }),
 });
 
-export const { useRegisterUserMutation } = userApi;
+export const { useRegisterUserMutation, useLoginUserMutation } = userApi;

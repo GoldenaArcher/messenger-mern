@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import { useRegisterUserMutation } from "../store/features/authApi";
-import { useDispatch, useSelector } from "react-redux";
+import { useRegisterUserMutation } from "../../store/features/authApi";
+import { useDispatch } from "react-redux";
+import useAuthRedirect from "../../hooks/useAuthRedirect";
 
 const Register = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [registerUser, { isLoading, isSuccess, isError, error, data, reset }] =
     useRegisterUserMutation();
 
-  const { authenticated } = useSelector((state) => state.auth);
+  useAuthRedirect();
 
   const [state, setState] = useState({
     username: "",
@@ -45,12 +45,6 @@ const Register = () => {
     dispatch,
     reset,
   ]);
-
-  useEffect(() => {
-    if (authenticated) {
-      navigate("/");
-    }
-  }, [authenticated]);
 
   const [loadImage, setLoadImage] = useState("");
 
