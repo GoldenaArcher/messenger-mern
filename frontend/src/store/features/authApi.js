@@ -8,7 +8,7 @@ export const userApi = createApi({
   endpoints: (builder) => ({
     registerUser: builder.mutation({
       query: (userData) => ({
-        url: "/api/messenger/user-register",
+        url: "/user-register",
         method: "POST",
         data: userData,
       }),
@@ -23,7 +23,7 @@ export const userApi = createApi({
     }),
     loginUser: builder.mutation({
       query: (userData) => ({
-        url: "/api/messenger/user-login",
+        url: "/user-login",
         method: "POST",
         data: userData,
       }),

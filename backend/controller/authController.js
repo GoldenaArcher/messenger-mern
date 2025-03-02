@@ -62,7 +62,9 @@ module.exports.userRegister = (req, res) => {
     }
 
     try {
-      const existedUser = await registerModel.findOne();
+      const existedUser = await registerModel.findOne({
+        $or: [{ username: username }, { email: email }],
+      });
       if (existedUser) {
         return res.status(409).json({
           success: false,
@@ -89,7 +91,7 @@ module.exports.userRegister = (req, res) => {
           image: newUser.image,
           createdAt: newUser.updatedAt,
         },
-        process.env.SECRET,
+        process.env.JWT_SECRET,
         { expiresIn: process.env.TOKEN_EXP }
       );
 
@@ -174,7 +176,7 @@ module.exports.userLogin = async (req, res) => {
         image: existedUser.image,
         createdAt: existedUser.updatedAt,
       },
-      process.env.SECRET,
+      process.env.JWT_SECRET,
       { expiresIn: process.env.TOKEN_EXP }
     );
 

@@ -1,18 +1,25 @@
 import axios from "axios";
 
 const axiosBaseQuery =
-  ({ baseUrl } = { baseUrl: "http://localhost:5000" }) =>
-  async ({ url, method, data, params }) => {
+  ({ baseUrl } = { baseUrl: "http://localhost:5000/api/messenger" }) =>
+  async ({ url, method, data, params }, { getState }) => {
     try {
+      const state = getState();
+      const token = state.auth?.token;
+
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      if (data instanceof FormData) {
+        headers["Content-Type"] = "multipart/form-data";
+      } else {
+        headers["Content-Type"] = "application/json";
+      }
+
       const result = await axios({
         url: baseUrl + url,
         method,
         data,
         params,
-        headers:
-          data instanceof FormData
-            ? { "Content-Type": "multipart/form-data" }
-            : { "Content-Type": "application/json" },
+        headers,
       });
       return { data: result.data };
     } catch (axiosError) {

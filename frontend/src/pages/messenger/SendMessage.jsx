@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import {
   FaFileImage,
   FaGift,
@@ -6,6 +6,8 @@ import {
   FaPaperPlane,
   FaPlusCircle,
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { usePostMessageMutation } from "../../store/features/messageApi";
 
 const emojis = [
   "😀",
@@ -34,7 +36,34 @@ const emojis = [
   "😱",
 ];
 
-const SendMessage = () => {
+const SendMessage = ({ currentFriend }) => {
+  const [newMessage, setNewMessage] = useState("");
+  const { userInfo } = useSelector((state) => state.auth);
+
+  const [postMessage, { isLoading, isSuccess, isError, error, data, reset }] =
+    usePostMessageMutation();
+
+  const onChangeMessage = useCallback((e) => {
+    setNewMessage(e.target.value);
+  }, []);
+
+  const onSendMessage = async (e) => {
+    e.preventDefault();
+
+    if (!newMessage.trim()) return;
+
+    const data = {
+      sender: userInfo.id,
+      receiver: currentFriend._id,
+      message: newMessage,
+    };
+    try {
+      await postMessage(data).unwrap();
+    } catch (err) {
+      console.error("send message failed: ", err);
+    }
+  };
+
   return (
     <div className="send-message-section">
       <input type="checkbox" name="emoji" id="emoji" />
@@ -63,6 +92,8 @@ const SendMessage = () => {
           id="message"
           placeholder="Aa"
           className="form-control"
+          onChange={onChangeMessage}
+          value={newMessage}
         />
         <div className="file hover-gift">
           <label htmlFor="emoji">
@@ -72,13 +103,13 @@ const SendMessage = () => {
       </div>
 
       <div className="file">
-        <FaHeart />
+        <FaHeart onClick={onSendMessage} />
       </div>
 
       <div className="emoji-section">
         <div className="emoji">
-          {emojis.map((emoji) => (
-            <span>{emoji}</span>
+          {emojis.map((emoji, i) => (
+            <span key={i}>{emoji}</span>
           ))}
         </div>
       </div>

@@ -2,16 +2,22 @@ import React from "react";
 import { FaEdit, FaEllipsisH, FaSistrix } from "react-icons/fa";
 
 import ActiveFriend from "./ActiveFriend";
-import Friends from "./Friends";
+import Friends from "./Friend";
 import ProfileImage from "../../components/ProfileImage";
 
-const LeftSide = () => {
+import { useFetchFriendsQuery } from "../../store/features/friendApi";
+import { useSelector } from "react-redux";
+
+const LeftSide = ({ setCurrentFriend, currentFriend }) => {
+  const { data: friendList } = useFetchFriendsQuery();
+  const { userInfo } = useSelector((state) => state.auth);
+
   return (
     <div className="col-3">
       <div className="left-side">
         <div className="top">
           <div className="image-name">
-            <ProfileImage />
+            <ProfileImage name={userInfo.username} src={userInfo.image} />
           </div>
 
           <div className="icons">
@@ -42,9 +48,21 @@ const LeftSide = () => {
         <div className="active-friends">
           <ActiveFriend />
           <div className="friends">
-            <div className="hover-friend">
-              <Friends />
-            </div>
+            {friendList?.length
+              ? friendList.map((friend) => (
+                  <div
+                    className={`hover-friend ${
+                      friend === currentFriend ? "active" : ""
+                    }`}
+                    key={friend._id}
+                    onClick={() => {
+                      setCurrentFriend(friend);
+                    }}
+                  >
+                    <Friends info={friend} />
+                  </div>
+                ))
+              : "No Friend Available"}
           </div>
         </div>
       </div>

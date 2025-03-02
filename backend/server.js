@@ -6,6 +6,7 @@ const path = require("path");
 
 const databaseConnect = require("./config/database");
 const authRouter = require("./routes/authRoute");
+const friendRouter = require("./routes/friendRoute");
 
 dotenv.config({
   path: __dirname + "/config/config.env",
@@ -19,6 +20,7 @@ app.use(bodyParser.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/messenger", authRouter);
+app.use("/api/messenger", friendRouter);
 
 const PORT = process.env.PORT || 5000;
 
