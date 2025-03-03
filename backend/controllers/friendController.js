@@ -1,4 +1,4 @@
-const User = require("../model/authModel");
+const User = require("../models/authModel");
 
 module.exports.getFriends = async (req, res) => {
   try {
@@ -6,5 +6,6 @@ module.exports.getFriends = async (req, res) => {
     res.status(200).json({ success: true, data: friendList });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 };

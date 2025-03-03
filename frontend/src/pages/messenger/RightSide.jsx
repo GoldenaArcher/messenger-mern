@@ -38,7 +38,7 @@ const RightSide = ({ currentFriend }) => {
                 </div>
               </div>
 
-              <Message />
+              <Message currentFriend={currentFriend} />
               <SendMessage currentFriend={currentFriend} />
             </div>
           </div>

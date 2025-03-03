@@ -7,7 +7,7 @@ export const friendApi = createApi({
   endpoints: (builder) => ({
     fetchFriends: builder.query({
       query: () => ({
-        url: "/friend",
+        url: "/friends",
         method: "GET",
       }),
       transformResponse: (res) => res.data,

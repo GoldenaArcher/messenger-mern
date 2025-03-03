@@ -1,12 +1,13 @@
 const { formidable } = require("formidable");
 const validator = require("validator");
-const { extractFields } = require("../utils/formidableUtils");
 const { randomBytes } = require("node:crypto");
-const registerModel = require("../model/authModel");
 const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
+const registerModel = require("../models/authModel");
+const { extractFields } = require("../utils/formidableUtils");
 
 module.exports.userRegister = (req, res) => {
   const form = formidable();

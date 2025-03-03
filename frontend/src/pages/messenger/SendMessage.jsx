@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   FaFileImage,
   FaGift,
@@ -37,30 +37,73 @@ const emojis = [
 ];
 
 const SendMessage = ({ currentFriend }) => {
+  const messageRef = useRef();
+  const cursorPositionRef = useRef(0);
+
   const [newMessage, setNewMessage] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const { userInfo } = useSelector((state) => state.auth);
 
-  const [postMessage, { isLoading, isSuccess, isError, error, data, reset }] =
-    usePostMessageMutation();
+  const [postMessage] = usePostMessageMutation();
+
+  useEffect(() => {
+    if (messageRef.current) {
+      messageRef.current.selectionStart = cursorPositionRef.current;
+      messageRef.current.selectionEnd = cursorPositionRef.current;
+    }
+  }, [newMessage]);
 
   const onChangeMessage = useCallback((e) => {
+    const input = e.target;
+    const { selectionStart } = input;
+
     setNewMessage(e.target.value);
+
+    cursorPositionRef.current = selectionStart;
   }, []);
+
+  const onChangeFile = useCallback((e) => {
+    if (e.target.files.length !== 0) {
+      setSelectedFile(e.target.files[0]);
+    }
+  }, []);
+
+  const onClickEmoji = useCallback(
+    (e) => {
+      if (!messageRef.current) return;
+
+      const input = messageRef.current;
+
+      const start = input.selectionStart,
+        end = input.selectionEnd,
+        emoji = e.target.innerText;
+
+      setNewMessage(
+        (prev) => prev.substring(0, start) + emoji + prev.substring(end)
+      );
+
+      cursorPositionRef.current = start + emoji.length;
+    },
+    [messageRef]
+  );
 
   const onSendMessage = async (e) => {
     e.preventDefault();
+    if (!newMessage.trim() && !selectedFile) return;
 
-    if (!newMessage.trim()) return;
+    const formData = new FormData();
+    formData.append("sender", userInfo.id);
+    formData.append("receiver", currentFriend._id);
+    if (newMessage.trim()) formData.append("message", newMessage);
+    if (selectedFile) formData.append("file", selectedFile);
 
-    const data = {
-      sender: userInfo.id,
-      receiver: currentFriend._id,
-      message: newMessage,
-    };
     try {
-      await postMessage(data).unwrap();
+      await postMessage(formData).unwrap();
+      setNewMessage("");
+      setSelectedFile(null);
     } catch (err) {
-      console.error("send message failed: ", err);
+      console.error("Send message failed: ", err);
     }
   };
 
@@ -75,6 +118,13 @@ const SendMessage = ({ currentFriend }) => {
 
       <div className="file hover-image">
         <div className="add-image">Add Image</div>
+        <input
+          type="file"
+          name="pic"
+          id="pic"
+          className="form-control"
+          onChange={onChangeFile}
+        />
         <label htmlFor="pic">
           <FaFileImage />
         </label>
@@ -94,6 +144,7 @@ const SendMessage = ({ currentFriend }) => {
           className="form-control"
           onChange={onChangeMessage}
           value={newMessage}
+          ref={messageRef}
         />
         <div className="file hover-gift">
           <label htmlFor="emoji">
@@ -109,7 +160,9 @@ const SendMessage = ({ currentFriend }) => {
       <div className="emoji-section">
         <div className="emoji">
           {emojis.map((emoji, i) => (
-            <span key={i}>{emoji}</span>
+            <span key={i} onClick={onClickEmoji}>
+              {emoji}
+            </span>
           ))}
         </div>
       </div>

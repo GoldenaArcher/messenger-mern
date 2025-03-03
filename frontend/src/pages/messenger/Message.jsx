@@ -1,239 +1,137 @@
-import React from "react";
+import React, { Fragment, useEffect, useRef } from "react";
+import { useFetchMessagesQuery } from "../../store/features/messageApi";
+import { useSelector } from "react-redux";
+import ProfileImage from "../../components/ProfileImage";
+import { toReadableTime } from "../../utils/timeUtils";
+import { getRenderedFile } from "../../store/utils/fileUtils";
 
-const Message = () => {
+const MyMessage = ({ message, file, fileType, updatedAt, scrollRef }) => {
+  const messageBody =
+    file && fileType ? getRenderedFile(file, fileType) : message;
+
+  return (
+    <div className="message-container my-message" ref={scrollRef}>
+      <div className="message-wrapper">
+        <div className="my-text">
+          <p className="message-text">{messageBody}</p>
+        </div>
+        <div className="time">{toReadableTime(updatedAt)}</div>
+      </div>
+    </div>
+  );
+};
+
+const FriendMessage = ({
+  message,
+  updatedAt,
+  imgUrl,
+  scrollRef,
+  file,
+  fileType,
+}) => {
+  const messageBody =
+    file && fileType ? getRenderedFile(file, fileType) : message;
+
+  return (
+    <div className="message-container fd-message" ref={scrollRef}>
+      <div className="profile">
+        <ProfileImage src={imgUrl} />
+      </div>
+
+      <div className="message-wrapper">
+        <div className="fd-text">
+          <p className="message-text">{messageBody}</p>
+        </div>
+        <div className="time">{toReadableTime(updatedAt)}</div>
+      </div>
+    </div>
+  );
+};
+
+const Message = ({ currentFriend }) => {
+  const scrollRef = useRef();
+
+  const { userInfo } = useSelector((state) => state.auth);
+  const { data: messageList } = useFetchMessagesQuery(
+    currentFriend
+      ? { sender: userInfo.id, receiver: currentFriend?._id }
+      : undefined,
+    { skip: !currentFriend }
+  );
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messageList]);
+
   return (
     <div className="message-show">
-      <div className="message-container my-message">
-        <div className="message-wrapper">
-          <div className="my-text">
-            <p className="message-text">How Are You?</p>
-          </div>
-          <div className="time">2 Jan 2022</div>
-        </div>
-      </div>
+      {messageList &&
+        messageList.map(
+          (
+            { _id, sender, receiver, message, updatedAt, file, fileType },
+            index
+          ) => {
+            const isLastIndex = index === messageList.length - 1,
+              hasFile = file && fileType,
+              hasMessage = !!message;
 
-      <div className="message-container fd-message">
-        <div className="profile">
-          <img src="/image/avatar.jpg" alt="User" />
-        </div>
+            if (sender === userInfo.id && receiver === currentFriend?._id) {
+              return (
+                <Fragment key={_id}>
+                  {hasFile && (
+                    <MyMessage
+                      updatedAt={updatedAt}
+                      file={file}
+                      fileType={fileType}
+                      scrollRef={
+                        index === (isLastIndex && !hasMessage)
+                          ? scrollRef
+                          : null
+                      }
+                    />
+                  )}
+                  {hasMessage && (
+                    <MyMessage
+                      message={message}
+                      updatedAt={updatedAt}
+                      scrollRef={isLastIndex ? scrollRef : null}
+                    />
+                  )}
+                </Fragment>
+              );
+            }
 
-        <div className="message-wrapper">
-          <div className="fd-text">
-            <p className="message-text">I am Fine</p>
-          </div>
-          <div className="time">3 Jan 2022</div>
-        </div>
-      </div>
-      <div className="message-container my-message">
-        <div className="message-wrapper">
-          <div className="my-text">
-            <p className="message-text">How Are You?</p>
-          </div>
-          <div className="time">2 Jan 2022</div>
-        </div>
-      </div>
+            if (sender === currentFriend?._id && receiver === userInfo.id) {
+              return (
+                <Fragment key={_id}>
+                  {hasFile && (
+                    <FriendMessage
+                      imgUrl={currentFriend.image}
+                      updatedAt={updatedAt}
+                      file={file}
+                      fileType={fileType}
+                      scrollRef={
+                        index === (isLastIndex && !hasMessage)
+                          ? scrollRef
+                          : null
+                      }
+                    />
+                  )}
+                  {hasMessage && (
+                    <FriendMessage
+                      imgUrl={currentFriend.image}
+                      message={message}
+                      updatedAt={updatedAt}
+                      scrollRef={isLastIndex ? scrollRef : null}
+                    />
+                  )}
+                </Fragment>
+              );
+            }
 
-      <div className="message-container fd-message">
-        <div className="profile">
-          <img src="/image/avatar.jpg" alt="User" />
-        </div>
-
-        <div className="message-wrapper">
-          <div className="fd-text">
-            <p className="message-text">I am Fine</p>
-          </div>
-          <div className="time">3 Jan 2022</div>
-        </div>
-      </div>
-      <div className="message-container my-message">
-        <div className="message-wrapper">
-          <div className="my-text">
-            <p className="message-text">How Are You?</p>
-          </div>
-          <div className="time">2 Jan 2022</div>
-        </div>
-      </div>
-
-      <div className="message-container fd-message">
-        <div className="profile">
-          <img src="/image/avatar.jpg" alt="User" />
-        </div>
-
-        <div className="message-wrapper">
-          <div className="fd-text">
-            <p className="message-text">I am Fine</p>
-          </div>
-          <div className="time">3 Jan 2022</div>
-        </div>
-      </div>
-      <div className="message-container my-message">
-        <div className="message-wrapper">
-          <div className="my-text">
-            <p className="message-text">How Are You?</p>
-          </div>
-          <div className="time">2 Jan 2022</div>
-        </div>
-      </div>
-
-      <div className="message-container fd-message">
-        <div className="profile">
-          <img src="/image/avatar.jpg" alt="User" />
-        </div>
-
-        <div className="message-wrapper">
-          <div className="fd-text">
-            <p className="message-text">I am Fine</p>
-          </div>
-          <div className="time">3 Jan 2022</div>
-        </div>
-      </div>
-      <div className="message-container my-message">
-        <div className="message-wrapper">
-          <div className="my-text">
-            <p className="message-text">How Are You?</p>
-          </div>
-          <div className="time">2 Jan 2022</div>
-        </div>
-      </div>
-
-      <div className="message-container fd-message">
-        <div className="profile">
-          <img src="/image/avatar.jpg" alt="User" />
-        </div>
-
-        <div className="message-wrapper">
-          <div className="fd-text">
-            <p className="message-text">I am Fine</p>
-          </div>
-          <div className="time">3 Jan 2022</div>
-        </div>
-      </div>
-      <div className="message-container my-message">
-        <div className="message-wrapper">
-          <div className="my-text">
-            <p className="message-text">How Are You?</p>
-          </div>
-          <div className="time">2 Jan 2022</div>
-        </div>
-      </div>
-
-      <div className="message-container fd-message">
-        <div className="profile">
-          <img src="/image/avatar.jpg" alt="User" />
-        </div>
-
-        <div className="message-wrapper">
-          <div className="fd-text">
-            <p className="message-text">I am Fine</p>
-          </div>
-          <div className="time">3 Jan 2022</div>
-        </div>
-      </div>
-      <div className="message-container my-message">
-        <div className="message-wrapper">
-          <div className="my-text">
-            <p className="message-text">How Are You?</p>
-          </div>
-          <div className="time">2 Jan 2022</div>
-        </div>
-      </div>
-
-      <div className="message-container fd-message">
-        <div className="profile">
-          <img src="/image/avatar.jpg" alt="User" />
-        </div>
-
-        <div className="message-wrapper">
-          <div className="fd-text">
-            <p className="message-text">I am Fine</p>
-          </div>
-          <div className="time">3 Jan 2022</div>
-        </div>
-      </div>
-      <div className="message-container my-message">
-        <div className="message-wrapper">
-          <div className="my-text">
-            <p className="message-text">How Are You?</p>
-          </div>
-          <div className="time">2 Jan 2022</div>
-        </div>
-      </div>
-
-      <div className="message-container fd-message">
-        <div className="profile">
-          <img src="/image/avatar.jpg" alt="User" />
-        </div>
-
-        <div className="message-wrapper">
-          <div className="fd-text">
-            <p className="message-text">I am Fine</p>
-          </div>
-          <div className="time">3 Jan 2022</div>
-        </div>
-      </div>
-      <div className="message-container my-message">
-        <div className="message-wrapper">
-          <div className="my-text">
-            <p className="message-text">How Are You?</p>
-          </div>
-          <div className="time">2 Jan 2022</div>
-        </div>
-      </div>
-
-      <div className="message-container fd-message">
-        <div className="profile">
-          <img src="/image/avatar.jpg" alt="User" />
-        </div>
-
-        <div className="message-wrapper">
-          <div className="fd-text">
-            <p className="message-text">I am Fine</p>
-          </div>
-          <div className="time">3 Jan 2022</div>
-        </div>
-      </div>
-      <div className="message-container my-message">
-        <div className="message-wrapper">
-          <div className="my-text">
-            <p className="message-text">How Are You?</p>
-          </div>
-          <div className="time">2 Jan 2022</div>
-        </div>
-      </div>
-
-      <div className="message-container fd-message">
-        <div className="profile">
-          <img src="/image/avatar.jpg" alt="User" />
-        </div>
-
-        <div className="message-wrapper">
-          <div className="fd-text">
-            <p className="message-text">I am Fine</p>
-          </div>
-          <div className="time">3 Jan 2022</div>
-        </div>
-      </div>
-      <div className="message-container my-message">
-        <div className="message-wrapper">
-          <div className="my-text">
-            <p className="message-text">How Are You?</p>
-          </div>
-          <div className="time">2 Jan 2022</div>
-        </div>
-      </div>
-
-      <div className="message-container fd-message">
-        <div className="profile">
-          <img src="/image/avatar.jpg" alt="User" />
-        </div>
-
-        <div className="message-wrapper">
-          <div className="fd-text">
-            <p className="message-text">I am Fine</p>
-          </div>
-          <div className="time">3 Jan 2022</div>
-        </div>
-      </div>
+            return null;
+          }
+        )}
     </div>
   );
 };

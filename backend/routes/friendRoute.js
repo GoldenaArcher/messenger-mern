@@ -1,7 +1,7 @@
 const router = require("express").Router();
-const { getFriends } = require("../controller/friendController");
-const authMiddleware = require("../middleware/authMiddleware");
+const { getFriends } = require("../controllers/friendController");
+const authMiddleware = require("../middlewares/authMiddleware");
 
-router.get("/friend", authMiddleware, getFriends);
+router.get("/friends", authMiddleware, getFriends);
 
 module.exports = router;
