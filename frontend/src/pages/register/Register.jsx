@@ -23,9 +23,7 @@ const Register = () => {
   });
 
   useEffect(() => {
-    return () => {
-      return reset();
-    };
+    return reset();
   }, [reset]);
 
   useEffect(() => {

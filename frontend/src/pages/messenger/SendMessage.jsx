@@ -8,6 +8,8 @@ import {
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { usePostMessageMutation } from "../../store/features/messageApi";
+import { useSocket } from "../../context/SocketProvider";
+import { useTyping } from "../../hooks/useTyping";
 
 const emojis = [
   "😀",
@@ -45,7 +47,11 @@ const SendMessage = ({ currentFriend }) => {
 
   const { userInfo } = useSelector((state) => state.auth);
 
+  const { socket } = useSocket();
+
   const [postMessage] = usePostMessageMutation();
+
+  const { handleTyping } = useTyping(currentFriend?._id);
 
   useEffect(() => {
     if (messageRef.current) {
@@ -54,14 +60,18 @@ const SendMessage = ({ currentFriend }) => {
     }
   }, [newMessage]);
 
-  const onChangeMessage = useCallback((e) => {
-    const input = e.target;
-    const { selectionStart } = input;
+  const onChangeMessage = useCallback(
+    (e) => {
+      const input = e.target;
+      const { selectionStart } = input;
 
-    setNewMessage(e.target.value);
+      setNewMessage(e.target.value);
+      handleTyping();
 
-    cursorPositionRef.current = selectionStart;
-  }, []);
+      cursorPositionRef.current = selectionStart;
+    },
+    [handleTyping]
+  );
 
   const onChangeFile = useCallback((e) => {
     if (e.target.files.length !== 0) {
@@ -99,7 +109,9 @@ const SendMessage = ({ currentFriend }) => {
     if (selectedFile) formData.append("file", selectedFile);
 
     try {
-      await postMessage(formData).unwrap();
+      const res = await postMessage(formData).unwrap();
+      socket.emit("sendMessage", res);
+
       setNewMessage("");
       setSelectedFile(null);
     } catch (err) {
@@ -145,6 +157,7 @@ const SendMessage = ({ currentFriend }) => {
           onChange={onChangeMessage}
           value={newMessage}
           ref={messageRef}
+          autoComplete="off"
         />
         <div className="file hover-gift">
           <label htmlFor="emoji">

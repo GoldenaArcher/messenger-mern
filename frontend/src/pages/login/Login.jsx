@@ -20,9 +20,7 @@ const Login = () => {
   useAuthRedirect();
 
   useEffect(() => {
-    return () => {
-      return reset();
-    };
+    return reset();
   }, [reset]);
 
   useEffect(() => {

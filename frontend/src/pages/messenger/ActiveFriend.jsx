@@ -1,13 +1,17 @@
 import React from "react";
 import ProfileImage from "../../components/ProfileImage";
 
-const ActiveFriend = () => {
+const ActiveFriend = ({ setCurrentFriend, currentFriend }) => {
   return (
-    <div className="active-friend">
+    <div
+      className="active-friend"
+      onClick={() =>
+        setCurrentFriend({ ...currentFriend, _id: currentFriend.id })
+      }
+    >
       <div className="image-active-icon">
         <div className="image">
-          <ProfileImage />
-          <div className="active-icon"></div>
+          <ProfileImage src={currentFriend.image} isActive={true} />
         </div>
       </div>
     </div>

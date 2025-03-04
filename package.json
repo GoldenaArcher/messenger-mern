@@ -4,13 +4,18 @@
   "main": "index.js",
   "author": "GoldenaArcher <25376645+GoldenaArcher@users.noreply.github.com>",
   "license": "MIT",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "socket"
+  ],
+  "private": "true",
+  "packageManager": "yarn@1.22.22",
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "turbo": "^2.4.4"
   },
   "scripts": {
-    "server": "cd backend && yarn start",
-    "client": "cd frontend && yarn start",
-    "dev": "concurrently \"yarn server\" \"yarn client\""
+    "dev": "turbo run dev"
   },
   "proxy": "http://localhost:5000"
 }

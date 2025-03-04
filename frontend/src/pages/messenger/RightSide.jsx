@@ -1,11 +1,18 @@
 import React from "react";
 import { FaPhoneAlt, FaVideo, FaRocketchat } from "react-icons/fa";
+
+import { useSocket } from "../../context/SocketProvider";
+
 import ProfileImage from "../../components/ProfileImage";
 import Message from "./Message";
 import SendMessage from "./SendMessage";
 import FriendInfo from "./FriendInfo";
 
 const RightSide = ({ currentFriend }) => {
+  const { activeUsers } = useSocket();
+
+  const isActive = !!activeUsers.find((user) => user.id === currentFriend._id);
+
   return (
     <div className="col-9">
       <div className="right-side">
@@ -18,6 +25,7 @@ const RightSide = ({ currentFriend }) => {
                   <ProfileImage
                     name={currentFriend.username}
                     src={currentFriend.image}
+                    isActive={isActive}
                   />
                 </div>
 

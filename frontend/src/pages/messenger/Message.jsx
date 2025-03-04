@@ -1,9 +1,10 @@
-import React, { Fragment, useEffect, useRef } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { useFetchMessagesQuery } from "../../store/features/messageApi";
 import { useSelector } from "react-redux";
 import ProfileImage from "../../components/ProfileImage";
 import { toReadableTime } from "../../utils/timeUtils";
 import { getRenderedFile } from "../../store/utils/fileUtils";
+import { useSocket } from "../../context/SocketProvider";
 
 const MyMessage = ({ message, file, fileType, updatedAt, scrollRef }) => {
   const messageBody =
@@ -28,7 +29,20 @@ const FriendMessage = ({
   scrollRef,
   file,
   fileType,
+  isTyping,
 }) => {
+  if (isTyping) {
+    return (
+      <div className="message-container fd-message" ref={scrollRef}>
+        <div className="profile">
+          <ProfileImage src={imgUrl} />
+        </div>
+
+        <div className="time">Typing Message...</div>
+      </div>
+    );
+  }
+
   const messageBody =
     file && fileType ? getRenderedFile(file, fileType) : message;
 
@@ -51,6 +65,8 @@ const FriendMessage = ({
 const Message = ({ currentFriend }) => {
   const scrollRef = useRef();
 
+  const { socket } = useSocket();
+
   const { userInfo } = useSelector((state) => state.auth);
   const { data: messageList } = useFetchMessagesQuery(
     currentFriend
@@ -59,9 +75,36 @@ const Message = ({ currentFriend }) => {
     { skip: !currentFriend }
   );
 
+  const [isTyping, setIsTyping] = useState(false);
+
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messageList]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleTypingStart = ({ sender }) => {
+      if (sender === currentFriend._id) {
+        setIsTyping(true);
+      }
+    };
+
+    const handleTypingStop = ({ sender }) => {
+      if (sender === currentFriend._id) {
+        setIsTyping(false);
+      }
+    };
+
+    socket.on("typingNewMessage", handleTypingStart);
+
+    socket.on("stopTypingNewMessage", handleTypingStop);
+
+    return () => {
+      socket.off("typingNewMessage", handleTypingStart);
+      socket.off("stopTypingNewMessage", handleTypingStop);
+    };
+  }, [socket, currentFriend]);
 
   return (
     <div className="message-show">
@@ -132,6 +175,13 @@ const Message = ({ currentFriend }) => {
             return null;
           }
         )}
+      {isTyping && (
+        <FriendMessage
+          imgUrl={currentFriend.image}
+          isTyping={isTyping}
+          scrollRef={scrollRef}
+        />
+      )}
     </div>
   );
 };

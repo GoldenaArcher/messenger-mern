@@ -1,5 +1,6 @@
 import React from "react";
 import { FaCaretSquareDown } from "react-icons/fa";
+
 import ProfileImage from "../../components/ProfileImage";
 
 const FriendInfo = ({ currentFriend }) => {
@@ -35,10 +36,10 @@ const FriendInfo = ({ currentFriend }) => {
       </div>
 
       <div className="gallery">
-        <img src="/image/20003ariyan.jpg" alt="gallery-img" />
-        <img src="/image/20003ariyan.jpg" alt="gallery-img" />
-        <img src="/image/20003ariyan.jpg" alt="gallery-img" />
-        <img src="/image/20003ariyan.jpg" alt="gallery-img" />
+        <img src="/image" alt="gallery-img" />
+        <img src="/image" alt="gallery-img" />
+        <img src="/image" alt="gallery-img" />
+        <img src="/image" alt="gallery-img" />
       </div>
     </div>
   );

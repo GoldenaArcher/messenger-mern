@@ -1,14 +1,17 @@
 import React from "react";
 import { FaEdit, FaEllipsisH, FaSistrix } from "react-icons/fa";
+import { useSelector } from "react-redux";
+
+import { useSocket } from "../../context/SocketProvider";
 
 import ActiveFriend from "./ActiveFriend";
 import Friends from "./Friend";
 import ProfileImage from "../../components/ProfileImage";
 
 import { useFetchFriendsQuery } from "../../store/features/friendApi";
-import { useSelector } from "react-redux";
 
 const LeftSide = ({ setCurrentFriend, currentFriend }) => {
+  const { activeUsers } = useSocket();
   const { data: friendList } = useFetchFriendsQuery();
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -46,24 +49,30 @@ const LeftSide = ({ setCurrentFriend, currentFriend }) => {
         </div>
 
         <div className="active-friends">
-          <ActiveFriend />
-          <div className="friends">
-            {friendList?.length
-              ? friendList.map((friend) => (
-                  <div
-                    className={`hover-friend ${
-                      friend === currentFriend ? "active" : ""
-                    }`}
-                    key={friend._id}
-                    onClick={() => {
-                      setCurrentFriend(friend);
-                    }}
-                  >
-                    <Friends info={friend} />
-                  </div>
-                ))
-              : "No Friend Available"}
-          </div>
+          {activeUsers.map((activeUser) => (
+            <ActiveFriend
+              key={activeUser.id}
+              currentFriend={activeUser}
+              setCurrentFriend={setCurrentFriend}
+            />
+          ))}
+        </div>
+        <div className="friends">
+          {friendList?.length
+            ? friendList.map((friend) => (
+                <div
+                  className={`hover-friend ${
+                    friend?._id === currentFriend?._id ? "active" : ""
+                  }`}
+                  key={friend._id}
+                  onClick={() => {
+                    setCurrentFriend(friend);
+                  }}
+                >
+                  <Friends info={friend} />
+                </div>
+              ))
+            : "No Friend Available"}
         </div>
       </div>
     </div>

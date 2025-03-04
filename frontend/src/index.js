@@ -3,18 +3,23 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { ToastContainer, Zoom } from "react-toastify";
 
-import "./index.css";
 import App from "./App";
-import reportWebVitals from "./reportWebVitals";
-import "./main.scss";
+import { SocketProvider } from "./context/SocketProvider";
 
 import store from "./store";
+
+import "./index.css";
+import "./main.scss";
+
+import reportWebVitals from "./reportWebVitals";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <SocketProvider>
+        <App />
+      </SocketProvider>
       <ToastContainer
         position="top-center"
         autoClose={5000}
