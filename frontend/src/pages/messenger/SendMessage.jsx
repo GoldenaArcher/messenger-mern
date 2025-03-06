@@ -7,9 +7,15 @@ import {
   FaPlusCircle,
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { usePostMessageMutation } from "../../store/features/messageApi";
+import useSound from "use-sound";
+
 import { useSocket } from "../../context/SocketProvider";
+
+import { usePostMessageMutation } from "../../store/features/messageApi";
+
 import { useTyping } from "../../hooks/useTyping";
+
+import sendingSound from "../../assets/sounds/sending.mp3";
 
 const emojis = [
   "😀",
@@ -52,6 +58,8 @@ const SendMessage = ({ currentFriend }) => {
   const [postMessage] = usePostMessageMutation();
 
   const { handleTyping } = useTyping(currentFriend?._id);
+
+  const [play] = useSound(sendingSound);
 
   useEffect(() => {
     if (messageRef.current) {
@@ -109,6 +117,7 @@ const SendMessage = ({ currentFriend }) => {
     if (selectedFile) formData.append("file", selectedFile);
 
     try {
+      play();
       const res = await postMessage(formData).unwrap();
       socket.emit("sendMessage", res);
 

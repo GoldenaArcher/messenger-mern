@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
 
 import { useLoginUserMutation } from "../../store/features/authApi";
-import { useDispatch } from "react-redux";
 import useAuthRedirect from "../../hooks/useAuthRedirect";
 
 const Login = () => {

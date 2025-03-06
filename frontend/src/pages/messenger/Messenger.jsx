@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
 
 import RightSide from "./RightSide";
 import LeftSide from "./LeftSide";
@@ -9,8 +10,10 @@ import { useFetchFriendsQuery } from "../../store/features/friendApi";
 import { useSocket } from "../../context/SocketProvider";
 
 import { trimMessage } from "../../utils/messageUtils";
+import { messageApi } from "../../store/features/messageApi";
 
 const Messenger = () => {
+  const dispatch = useDispatch();
   const { data: friendList } = useFetchFriendsQuery();
 
   const [currentFriend, setCurrentFriend] = useState(null);
@@ -27,6 +30,20 @@ const Messenger = () => {
     if (!socket) return;
 
     socket.on("newMessage", (message) => {
+      dispatch(
+        messageApi.util.updateQueryData(
+          "fetchMessages",
+          { sender: message.receiver, receiver: message.sender },
+          (messageList) => {
+            if (!messageList) {
+              dispatch(messageApi.util.invalidateTags(["Messages"]));
+              return;
+            }
+            messageList.push(message);
+          }
+        )
+      );
+
       const senderInfo = friendList?.find(
         (friend) => friend._id === message.sender
       );
@@ -52,7 +69,11 @@ const Messenger = () => {
         draggable: true,
       });
     });
-  }, [socket, friendList]);
+
+    return () => {
+      socket.off("newMessage");
+    };
+  }, [socket, friendList, dispatch]);
 
   return (
     <div className="messenger">

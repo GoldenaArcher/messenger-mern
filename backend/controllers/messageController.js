@@ -1,4 +1,5 @@
 const { formidable } = require("formidable");
+const mongoose = require("mongoose");
 
 const Message = require("../models/messageModel");
 const { extractFields } = require("../utils/formidableUtils");
@@ -83,12 +84,64 @@ module.exports.getMessages = async (req, res) => {
 
   try {
     const messageList = await Message.find({
-      $and: [
-        { $or: [{ sender }, { sender: receiver }] },
-        { $or: [{ receiver: sender }, { receiver }] },
+      $or: [
+        {
+          $and: [{ sender: { $eq: sender } }, { receiver: { $eq: receiver } }],
+        },
+        {
+          $and: [{ sender: { $eq: receiver } }, { receiver: { $eq: sender } }],
+        },
       ],
     }).sort({ createdAt: 1 });
     res.status(200).json({ success: true, data: messageList });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+module.exports.getLastMessages = async (req, res) => {
+  try {
+    const { currentUser, friends } = req.query;
+
+    const userId = currentUser || req.user.id;
+
+    if (!userId || !friends) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing query parameters." });
+    }
+
+    const friendList = Array.isArray(friends) ? friends : friends.split(",");
+
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const friendObjectIds = friendList.map(
+      (id) => new mongoose.Types.ObjectId(id)
+    );
+
+    const lastMessages = await Message.aggregate([
+      {
+        $match: {
+          $or: [
+            { sender: userObjectId, receiver: { $in: friendObjectIds } },
+            { receiver: userObjectId, sender: { $in: friendObjectIds } },
+          ],
+        },
+      },
+      { $sort: { createdAt: -1 } },
+      {
+        $group: {
+          _id: {
+            user1: { $toString: { $min: ["$sender", "$receiver"] } },
+            user2: { $toString: { $max: ["$sender", "$receiver"] } },
+          },
+          lastMessage: { $first: "$$ROOT" },
+        },
+      },
+      { $replaceRoot: { newRoot: "$lastMessage" } },
+    ]);
+
+    res.status(200).json({ success: true, data: lastMessages });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Internal server error." });
