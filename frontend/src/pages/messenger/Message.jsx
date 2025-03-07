@@ -3,7 +3,7 @@ import { useFetchMessagesQuery } from "../../store/features/messageApi";
 import { useSelector } from "react-redux";
 import ProfileImage from "../../components/ProfileImage";
 import { toReadableTime } from "../../utils/timeUtils";
-import { getRenderedFile } from "../../store/utils/fileUtils";
+import { getRenderedFile } from "../../utils/fileUtils";
 import { useSocket } from "../../context/SocketProvider";
 
 const MyMessage = ({ message, file, fileType, updatedAt, scrollRef }) => {

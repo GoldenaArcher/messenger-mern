@@ -5,15 +5,52 @@ import { useSelector } from "react-redux";
 import { useSocket } from "../../context/SocketProvider";
 
 import ActiveFriend from "./ActiveFriend";
-import Friends from "./Friend";
+import Friend from "./Friend";
 import ProfileImage from "../../components/ProfileImage";
 
 import { useFetchFriendsQuery } from "../../store/features/friendApi";
+import { useFetchLastFriendMessagesQuery } from "../../store/features/messageApi";
 
 const LeftSide = ({ setCurrentFriend, currentFriend }) => {
   const { activeUsers } = useSocket();
   const { data: friendList } = useFetchFriendsQuery();
+  const { data: mostRecentMessageList } = useFetchLastFriendMessagesQuery(
+    friendList?.length
+      ? { friendList: friendList.map((friend) => friend._id) }
+      : undefined,
+    { skip: !friendList || !friendList.length }
+  );
+
   const { userInfo } = useSelector((state) => state.auth);
+
+  const getFriendsList = () => {
+    if (!friendList?.length) return "No Friend Available";
+
+    return friendList.map((friend) => {
+      const lastMsg = mostRecentMessageList?.find(
+        (msg) => msg.sender === friend?._id || msg.receiver === friend?._id
+      );
+
+      return (
+        <div
+          className={`hover-friend ${
+            friend?._id === currentFriend?._id ? "active" : ""
+          }`}
+          key={friend._id}
+          onClick={() => {
+            setCurrentFriend(friend);
+          }}
+        >
+          <Friend
+            info={friend}
+            lastMsg={lastMsg}
+            userId={userInfo.id}
+            currentFriend={currentFriend}
+          />
+        </div>
+      );
+    });
+  };
 
   return (
     <div className="col-3">
@@ -57,23 +94,7 @@ const LeftSide = ({ setCurrentFriend, currentFriend }) => {
             />
           ))}
         </div>
-        <div className="friends">
-          {friendList?.length
-            ? friendList.map((friend) => (
-                <div
-                  className={`hover-friend ${
-                    friend?._id === currentFriend?._id ? "active" : ""
-                  }`}
-                  key={friend._id}
-                  onClick={() => {
-                    setCurrentFriend(friend);
-                  }}
-                >
-                  <Friends info={friend} />
-                </div>
-              ))
-            : "No Friend Available"}
-        </div>
+        <div className="friends">{getFriendsList()}</div>
       </div>
     </div>
   );

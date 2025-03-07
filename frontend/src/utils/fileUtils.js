@@ -25,3 +25,19 @@ export const getRenderedFile = (file, fileType) => {
 
   return null;
 };
+
+export const getRenderedFileSummary = (file, fileType) => {
+  if (!file || !fileType) return null;
+
+  if (fileType === "image") {
+    return "sent you an image.";
+  }
+  if (fileType === "video") {
+    return "sent you a video.";
+  }
+  if (fileType === "document") {
+    return "sent you a file.";
+  }
+
+  return null;
+};

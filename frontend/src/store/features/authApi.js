@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import axiosBaseQuery from "../utils/axiosBaseQuery";
+import axiosBaseQuery from "../../utils/axiosBaseQuery";
 import { setAuthToken } from "../features/authSlice";
 
 export const userApi = createApi({
