@@ -1,7 +1,7 @@
 const { formidable } = require("formidable");
 const mongoose = require("mongoose");
 
-const Message = require("../models/messageModel");
+const { Message, allowedStatuses } = require("../models/messageModel");
 const { extractFields } = require("../utils/formidableUtils");
 const { uploadDir } = require("../middlewares/uploadMiddleware");
 
@@ -142,6 +142,42 @@ module.exports.getLastMessages = async (req, res) => {
     ]);
 
     res.status(200).json({ success: true, data: lastMessages });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+module.exports.updateMessageStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!allowedStatuses.includes(status)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid status." });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid message id." });
+    }
+
+    const updatedMessage = await Message.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedMessage) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Message not found." });
+    }
+
+    res.json({ success: true, data: updatedMessage });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Internal server error." });

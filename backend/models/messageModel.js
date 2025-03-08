@@ -1,5 +1,7 @@
 const { model, Schema, Types } = require("mongoose");
 
+const allowedStatuses = ["sent", "delivered", "read"];
+
 const messageSchema = new Schema(
   {
     sender: { type: Types.ObjectId, ref: "user", required: true },
@@ -13,11 +15,13 @@ const messageSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["sent", "delivered", "read"],
+      enum: allowedStatuses,
       default: "sent",
     },
   },
   { timestamps: true }
 );
 
-module.exports = model("Message", messageSchema);
+const Message = model("Message", messageSchema);
+
+module.exports = { Message, allowedStatuses };

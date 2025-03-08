@@ -40,7 +40,18 @@ const Friend = ({
   const getLastUpdatedTime = () => {
     if (!lastMsg) return;
 
-    return <span> {dayjs(lastMsg.createdAt).startOf("minute").fromNow()}</span>;
+    return <span>{dayjs(lastMsg.createdAt).startOf("minute").fromNow()}</span>;
+  };
+
+  const getNewMessageIcon = () => {
+    if (!lastMsg || lastMsg.sender === userId || lastMsg.status === "read")
+      return;
+
+    return (
+      <div className="seen-unseen-icon">
+        <div className="seen-icon"></div>
+      </div>
+    );
   };
 
   return (
@@ -56,6 +67,7 @@ const Friend = ({
             {getMessageSender()}
             {getLastSendContext()}
             {getLastUpdatedTime()}
+            {getNewMessageIcon()}
           </div>
         </div>
       </div>

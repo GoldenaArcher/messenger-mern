@@ -51,6 +51,7 @@
           align-items: flex-start;
           justify-content: center;
           flex-direction: column;
+          width: 100%;
           h4.unseen_message {
             font-weight: 700 !important;
           }
@@ -59,6 +60,8 @@
             font-weight: 300;
           }
           .msg-time {
+            display: flex;
+            width: 100%;
             span.unseen_message {
               font-weight: 700 !important;
             }
@@ -66,12 +69,16 @@
               font-size: 12px;
               color: var(--text-color);
             }
+            span:last-child {
+              margin-left: 5px;
+            }
           }
         }
         .seen-unseen-icon {
           display: flex;
           justify-content: center;
           align-items: center;
+          margin-left: auto;
           img {
             width: 15px;
             height: 15px;
@@ -85,7 +92,7 @@
             width: 15px;
             height: 15px;
             border-radius: 50%;
-            background-color: aquamarine;
+            background-color: #1e6bbd;
           }
         }
       }

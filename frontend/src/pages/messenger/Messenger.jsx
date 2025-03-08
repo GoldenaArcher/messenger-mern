@@ -11,10 +11,12 @@ import { useSocket } from "../../context/SocketProvider";
 
 import { trimMessage } from "../../utils/messageUtils";
 import { messageApi } from "../../store/features/messageApi";
+import useMessageStatus from "../../hooks/useMessageStatus";
 
 const Messenger = () => {
   const dispatch = useDispatch();
   const { data: friendList } = useFetchFriendsQuery();
+  const { markAsDelivered } = useMessageStatus();
 
   const [currentFriend, setCurrentFriend] = useState(null);
 
@@ -43,6 +45,36 @@ const Messenger = () => {
           }
         )
       );
+
+      dispatch(
+        messageApi.util.updateQueryData(
+          "fetchLastFriendMessages",
+          { friendList: friendList.map((friend) => friend._id) },
+          (lastMessages) => {
+            if (!lastMessages) {
+              dispatch(
+                messageApi.util.invalidateTags(["fetchLastFriendMessages"])
+              );
+              return;
+            }
+            const existingIndex = lastMessages.findIndex(
+              (msg) =>
+                (msg.sender === message.sender &&
+                  msg.receiver === message.receiver) ||
+                (msg.sender === message.receiver &&
+                  msg.receiver === message.sender)
+            );
+
+            if (existingIndex !== -1) {
+              lastMessages[existingIndex] = message;
+            } else {
+              lastMessages.push(message);
+            }
+          }
+        )
+      );
+
+      markAsDelivered(message._id);
 
       const senderInfo = friendList?.find(
         (friend) => friend._id === message.sender

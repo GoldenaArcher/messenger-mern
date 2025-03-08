@@ -117,8 +117,8 @@ const SendMessage = ({ currentFriend }) => {
     if (selectedFile) formData.append("file", selectedFile);
 
     try {
-      play();
       const res = await postMessage(formData).unwrap();
+      play();
       socket.emit("sendMessage", res);
 
       setNewMessage("");
