@@ -15,9 +15,7 @@ const LeftSide = ({ setCurrentFriend, currentFriend }) => {
   const { activeUsers } = useSocket();
   const { data: friendList } = useFetchFriendsQuery();
   const { data: mostRecentMessageList } = useFetchLastFriendMessagesQuery(
-    friendList?.length
-      ? { friendList: friendList.map((friend) => friend._id) }
-      : undefined,
+    friendList?.length ? { friendList } : undefined,
     { skip: !friendList || !friendList.length }
   );
 

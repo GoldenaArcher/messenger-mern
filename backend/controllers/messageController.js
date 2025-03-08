@@ -183,3 +183,48 @@ module.exports.updateMessageStatus = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
+
+module.exports.updateMessagesStatus = async (req, res) => {
+  try {
+    const { messageIds, status } = req.body;
+
+    if (!messageIds || !Array.isArray(messageIds) || messageIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid message IDs provided.",
+      });
+    }
+
+    if (!["delivered", "read"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status value.",
+      });
+    }
+
+    const updatedMessages = await Message.find({ _id: { $in: messageIds } });
+
+    if (!updatedMessages.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No matching messages found.",
+      });
+    }
+
+    await Message.updateMany(
+      { _id: { $in: messageIds } },
+      { $set: { status } }
+    );
+
+    updatedMessages.forEach((msg) => (msg.status = status));
+
+    res.json({
+      success: true,
+      message: `${updatedMessages.length} messages updated successfully.`,
+      data: updatedMessages,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};

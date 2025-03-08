@@ -1,5 +1,8 @@
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import { useFetchMessagesQuery } from "../../store/features/messageApi";
+import {
+  useFetchMessagesQuery,
+  useUpdateMessagesStatusMutation,
+} from "../../store/features/messageApi";
 import { useSelector } from "react-redux";
 import ProfileImage from "../../components/ProfileImage";
 import { toReadableTime } from "../../utils/timeUtils";
@@ -75,7 +78,24 @@ const Message = ({ currentFriend }) => {
     { skip: !currentFriend }
   );
 
+  const [updateMessagesStatus] = useUpdateMessagesStatusMutation();
+
   const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    if (!currentFriend || !messageList) return;
+
+    const unreadMessage = messageList.filter(
+      (msg) => msg.sender === currentFriend._id && msg.status !== "read"
+    );
+
+    if (unreadMessage.length) {
+      updateMessagesStatus({
+        messageIds: unreadMessage,
+        status: "read",
+      });
+    }
+  }, [updateMessagesStatus, messageList, currentFriend]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });

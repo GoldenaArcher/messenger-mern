@@ -49,7 +49,7 @@ const Messenger = () => {
       dispatch(
         messageApi.util.updateQueryData(
           "fetchLastFriendMessages",
-          { friendList: friendList.map((friend) => friend._id) },
+          { friendList },
           (lastMessages) => {
             if (!lastMessages) {
               dispatch(
@@ -105,7 +105,7 @@ const Messenger = () => {
     return () => {
       socket.off("newMessage");
     };
-  }, [socket, friendList, dispatch]);
+  }, [socket, friendList, dispatch, markAsDelivered]);
 
   return (
     <div className="messenger">

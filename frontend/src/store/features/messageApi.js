@@ -2,7 +2,12 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 
 import axiosBaseQuery from "../../utils/axiosBaseQuery";
 import { friendApi } from "./friendApi";
-import { updateMessageCache } from "../../utils/messageUtils";
+import {
+  updateMessageCache,
+  updateMessagesStatusCache,
+  updateMessageStatusCache,
+} from "../../utils/messageUtils";
+import { getEntityIds } from "../../utils/entityUtils";
 
 export const messageApi = createApi({
   reducerPath: "messageApi",
@@ -37,13 +42,27 @@ export const messageApi = createApi({
       transformResponse: (res) => res.data,
     }),
     fetchLastFriendMessages: builder.query({
-      query: ({ friendList }) => ({
-        url: `/messages/recent`,
-        method: "GET",
-        params: {
-          friends: friendList,
-        },
-      }),
+      query: ({ friendList }) => {
+        if (!friendList || !Array.isArray(friendList)) {
+          throw new Error(
+            "friendList passed to fetchLastFriendMessages must be an array"
+          );
+        }
+
+        let friends = friendList;
+
+        if (typeof friendList[0] !== "string") {
+          friends = getEntityIds(friendList);
+        }
+
+        return {
+          url: `/messages/recent`,
+          method: "GET",
+          params: {
+            friends,
+          },
+        };
+      },
       transformResponse: (res) => res.data,
     }),
     updateMessageStatus: builder.mutation({
@@ -54,7 +73,26 @@ export const messageApi = createApi({
       }),
       transformResponse: (res) => res.data,
       async onQueryStarted(arg, { dispatch, queryFulfilled, getState }) {
-        await updateMessageCache({
+        await updateMessageStatusCache({
+          queryFulfilled,
+          dispatch,
+          getState,
+          messageApi,
+          friendApi,
+        });
+      },
+    }),
+    updateMessagesStatus: builder.mutation({
+      query: ({ messageIds, status }) => {
+        return {
+          url: `/messages/status`,
+          method: "PATCH",
+          data: { status, messageIds: getEntityIds(messageIds) },
+        };
+      },
+      transformResponse: (res) => res.data,
+      async onQueryStarted(arg, { dispatch, queryFulfilled, getState }) {
+        await updateMessagesStatusCache({
           queryFulfilled,
           dispatch,
           getState,
@@ -71,4 +109,5 @@ export const {
   useFetchMessagesQuery,
   useFetchLastFriendMessagesQuery,
   useUpdateMessageStatusMutation,
+  useUpdateMessagesStatusMutation,
 } = messageApi;

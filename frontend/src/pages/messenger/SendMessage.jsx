@@ -170,13 +170,13 @@ const SendMessage = ({ currentFriend }) => {
         />
         <div className="file hover-gift">
           <label htmlFor="emoji">
-            <FaPaperPlane />
+            <FaHeart />
           </label>
         </div>
       </div>
 
       <div className="file">
-        <FaHeart onClick={onSendMessage} />
+        <FaPaperPlane onClick={onSendMessage} />
       </div>
 
       <div className="emoji-section">
